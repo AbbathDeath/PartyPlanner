@@ -1,8 +1,8 @@
-import LoginPage from "./сomponents/LoginPage"
+import SignInPage from "./сomponents/SignInPage"
 
 function App() {
   return (
-    <LoginPage />
+    <SignInPage />
   )
 
 }
