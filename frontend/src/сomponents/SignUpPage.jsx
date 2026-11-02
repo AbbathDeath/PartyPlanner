@@ -85,7 +85,7 @@ const SignUpPage = () => {
             <form onSubmit={handleSignUp} className='max-w-md m-auto pt-24'>
                 <h2 className='font-bold pb-2'>Rejestracja</h2>
                 <p>
-                    Masz już konto? <Link to='/signin'>Zaloguj się</Link>
+                    Masz już konto? <Link to='/signin' className="text-green-600 underline hover:text-green-800">Zaloguj się</Link>
                 </p>
 
                 <div className='flex flex-col py-4'>

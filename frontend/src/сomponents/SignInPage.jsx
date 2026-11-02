@@ -62,6 +62,11 @@ const SignInPage = () => {
     return (
         <div>
             <form onSubmit={handleSignIn} className='max-w-md m-auto pt-24'>
+                <h2 className='font-bold pb-2'>Logowanie</h2>
+                <p>
+                    Nie masz konta? <Link to='/signup' className="text-green-600 underline hover:text-green-800">Zarejestruj się</Link>
+                </p>
+
                 <div className='flex flex-col py-4'>
                     <input 
                         value={email}
