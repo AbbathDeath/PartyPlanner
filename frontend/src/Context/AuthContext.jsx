@@ -32,7 +32,7 @@ export const AuthContextProvider = ({children}) => {
         });
 
         return () => data.subscription.unsubscribe()
-        
+
     }, []);
 
 
@@ -52,7 +52,7 @@ export const AuthContextProvider = ({children}) => {
             return { success: true, data}
 
         } catch (error) {
-            console.error("Błąd", error);
+            console.error("Coś poszło nie tak. Spróbuj ponownie", error);
             return { success: false, error}
         }
     };

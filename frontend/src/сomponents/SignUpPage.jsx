@@ -73,7 +73,7 @@ const SignUpPage = () => {
             }
 
         } catch(err) {
-            setError("Błąd");
+            setError("Coś poszło nie tak. Spróbuj ponownie");
         } finally {
             setLoading(false)
         }
@@ -93,7 +93,7 @@ const SignUpPage = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)} 
                         placeholder='Email' 
-                        className='p-3 mt-6' 
+                        className='p-3 mt-6 border rounded' 
                         type='email'>
 
                     </input>
@@ -101,7 +101,7 @@ const SignUpPage = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)} 
                         placeholder='Hasło' 
-                        className='p-3 mt-6' 
+                        className='p-3 mt-6 border rounded' 
                         type='password'>
                     </input>
 
@@ -110,16 +110,17 @@ const SignUpPage = () => {
                         onChange={(e) => setConfirmPassword(e.target.value)} 
                         
                         placeholder='Powtórz hasło' 
-                        className='p-3 mt-6' 
+                        className='p-3 mt-6 border rounded' 
                         type='password'>
                     </input>
 
-                    <button 
+                    <button
                         type='submit' 
                         disabled={loading} 
-                        className='mt-6 w-full'>
+                        className="mt-6 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50" 
+                    >
                         Zarejestruj
-                    </button>
+                    </button> 
                     {error && <p className="text-red-600 text-center pt-4">{error}</p>}
                     {message && <p className="text-green-600 text-center pt-4">{message}</p>}
                 </div>
