@@ -13,13 +13,14 @@ const handleSignOut = async (e) => {
 };
 
     return (
-        <div>
-            <h1>Panel główny</h1>
-            <h2>Witaj, {session?.user?.email}</h2>
-            <div>
+        <div className="max-w-md mx-auto pt-24">
+            <div className="border rounded-lg shadow-md p-6">
+                <h1 className="text-2xl font-bold mb-2">Panel główny</h1>
+                <h2 className="text-gray-600">Witaj, {session?.user?.email}!</h2>
+                
                 <button
                     onClick={handleSignOut}
-                    className='hover:cursor-pointer border inline-block px-4 py-3 mt-4'>
+                    className='mt-6 w-full border border-red-600 text-red-600 py-2 rounded-lg hover:bg-red-50 cursor-pointer. inline-block'>
                     Wyloguj się
                     </button>
             </div>
