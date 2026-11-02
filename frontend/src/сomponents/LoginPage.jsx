@@ -1,5 +1,9 @@
-function LoginPage() {
-    return <h1 className="text-2xl text-green-700">Logowanie</h1>
+import React from 'react'
+
+const LoginPage = () => {
+    return (
+        <div>LoginPage</div>
+    )
 }
 
 export default LoginPage
