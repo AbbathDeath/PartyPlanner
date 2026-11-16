@@ -6,11 +6,16 @@ Backend opiera się na Supabase: uwierzytelnianie e-mail + hasło (Supabase Auth
 
 - `profiles` (`id`, `email`, `display_name`, `created_at`) – profil tworzony automatycznie triggerem po rejestracji w `auth.users`.
 - `groups` (`id`, `name`, `owner_id`, `members uuid[]`, `invite_code`, `created_at`) – właściciel jest zawsze dopisywany do `members`, `invite_code` (8 znaków) generuje się automatycznie.
+- `events` (`id`, `group_id`, `title`, `event_date`, `event_time`, `location`, `description`, `created_by`, `created_at`) – wydarzenia grupy; `created_by` uzupełnia się automatycznie.
+- `event_rsvps` (`event_id`, `user_id`, `status`, `updated_at`) – odpowiedź użytkownika na wydarzenie (`yes` / `no` / `maybe`), jedna na parę wydarzenie–użytkownik.
 
 ## Zasady dostępu (RLS)
 
 - Profil: użytkownik widzi własny profil i profile osób, z którymi jest w grupie; edytuje tylko własny.
 - Grupy: widoczne dla członków; tworzyć może każdy zalogowany (jako właściciel); edytować i usuwać tylko właściciel.
+- Wydarzenia: widoczne i dodawane tylko przez członków grupy; edytować i usuwać może tylko autor.
+- RSVP: widoczne dla członków grupy; każdy zmienia tylko własną odpowiedź.
+- Realtime włączony dla `events` i `event_rsvps`.
 
 ## Funkcje (RPC)
 
