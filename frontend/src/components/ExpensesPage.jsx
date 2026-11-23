@@ -1,3 +1,5 @@
+import {Link, useParams } from 'react-router'
+
 const test_names = [
     {id: "n1", name: "test1" },
     {id: "n2", name: "test2" },
@@ -15,12 +17,18 @@ const formatPLN = (grosze) =>
     (grosze / 100).toLocaleString('pl-PL', {style: 'currency', currency: 'PLN'})
 
 const ExpensesPage = () => {
+
+    const { id } = useParams() 
+
   return (
     <div className="max-w-md mx-auto pt-24">
       <div className="border rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold mb-4">Wydatki</h1>
+        <Link to={`/groups/${id}`}className="text-green-600 underline hover:text-green-800 mt-4">
+                    ← Wróć do grupy
+                </Link>
+        <h1 className="text-2xl font-bold mt-4">Wydatki</h1>
 
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-1 mt-4">
             {test_orders.map((order) => (
                 <li key={order.id} className="flex justify-between border-b py-1">
                     <div>
