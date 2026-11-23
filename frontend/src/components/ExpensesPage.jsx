@@ -1,7 +1,14 @@
-const testowa_tabela = [
-    { id: 1, title: "Pizza", amount: 6000},
-    { id: 2, title: "Piwko", amount: 4000},
-    { id: 3, title: "Inne zakupy", amount: 12000}
+const test_names = [
+    {id: "n1", name: "test1" },
+    {id: "n2", name: "test2" },
+    {id: "n3", name: "test3" },
+
+]
+
+const test_orders = [
+    { id: 1, title: "Pizza", amount: 6000, paid_by: "n1"},
+    { id: 2, title: "Piwko", amount: 4000,  paid_by: "n2"},
+    { id: 3, title: "Inne zakupy", amount: 12000, paid_by: "n3"}
 ]
 
 const formatPLN = (grosze) =>
@@ -14,10 +21,15 @@ const ExpensesPage = () => {
         <h1 className="text-2xl font-bold mb-4">Wydatki</h1>
 
         <ul className="flex flex-col gap-1">
-            {testowa_tabela.map((item) => (
-                <li key={item.id} className="flex justify-between border-b py-1">
-                    <span>{item.title}</span>
-                    <span>{formatPLN(item.amount)}</span>
+            {test_orders.map((order) => (
+                <li key={order.id} className="flex justify-between border-b py-1">
+                    <div>
+                        <div>{order.title}</div>
+                        <div className="text-sm text-gray-600">
+                            zapłacił(a): {test_names.find((item) => item.id === order.paid_by)?.name}
+                        </div>
+                    </div>
+                    <span>{formatPLN(order.amount)}</span>
                 </li>
             ))}
         </ul>
