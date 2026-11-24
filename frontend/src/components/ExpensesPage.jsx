@@ -28,6 +28,8 @@ const ExpensesPage = () => {
     const [expenseAmount, setExpenseAmount] = useState("")
     const [expensePaidBy, setExpensePaidBy] = useState("")
     const [selectedMembers, setSelectedMembers] = useState(test_names.map((member) => member.id))
+    const [splitMode, setSplitMode] = useState("equal")
+    const [manualSplit, setManualSplit] = useState({})
     
     const toggleMember = (memberId) => {
         if (selectedMembers.includes(memberId)) {
@@ -42,12 +44,41 @@ const ExpensesPage = () => {
     const remainder = selectedMembers.length > 0? totalGrosze % selectedMembers.length : 0
 
     const shareOf = (memberId) => {
+        if (!selectedMembers.includes(memberId)) return 0
+        if (splitMode === "manual") {
+            return Math.round(Number(manualSplit[memberId] || 0) * 100)
+        }
         const index = selectedMembers.indexOf(memberId)
         if (index === -1) return 0
         return index < remainder ? base + 1: base
     }
 
     const sharesSum = selectedMembers.reduce((sum, memberId) => sum + shareOf(memberId), 0)
+
+    const updateMemberShare = (memberId, value) => {
+        setManualSplit({...manualSplit, [memberId]: value})
+    }
+
+    const showShare = (share) => {
+        if (!selectedMembers.includes(share.id)) {
+            return <span className="text-gray-600"> - </span>
+        }
+
+        if (splitMode === "equal") {
+            return <span> {formatPLN(shareOf(share.id))} </span>
+        }
+        return (
+            <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={manualSplit[share.id] || ""}
+            onChange={(e) => updateMemberShare(share.id, e.target.value)}
+            className="w-24 p-1 border rounded text-right"
+            />
+        )
+    }
+
 
   return (
     <div className="max-w-md mx-auto pt-24">
@@ -116,6 +147,24 @@ const ExpensesPage = () => {
                     </select>
                     </div>
                 </div>
+                <div className='flex gap-2 mt-3'>
+                    <button
+                        type="button"
+                        onClick={() => setSplitMode("equal")}
+                        className={splitMode === "equal" ? "bg-green-600 text-white px-3 py-1 rounded" : "border px-3 py-1 rounded"}
+                    >
+                        Równo
+                    </button>  
+
+                    <button
+                        type="button"
+                        onClick={() => setSplitMode("manual")}
+                        className={splitMode === "manual" ? "bg-green-600 text-white px-3 py-1 rounded" : "border px-3 py-1 rounded"}
+                    >
+                        Ręcznie
+                    </button>  
+                </div>
+
                 <label className="block text-sm text-gray-600 mt-3">Uczestnicy</label>
                 <div>
                     {test_names.map((item) => (
@@ -128,7 +177,7 @@ const ExpensesPage = () => {
                                 />
                                 {item.name}
                             </label>
-                            <span className="text-gray-600">{selectedMembers.includes(item.id) ? formatPLN(shareOf(item.id)) : "—"} </span>
+                            {showShare(item)}
                         </div>
                     ))}
                     <p className="text-sm text-gray-600 mt-2">
