@@ -176,7 +176,7 @@ const ExpensesPage = () => {
     }
 
     if (loading) {
-        return <p>Ładowanie..</p>
+        return <p className="text-center pt-24">Ładowanie...</p>
     }
 
     if (loadError) {
@@ -302,9 +302,10 @@ const ExpensesPage = () => {
                 {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
                 <button
                     type="submit"
-                    className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 cursor-pointer"
+                    className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 cursor-pointer "
+                    disabled={saving}
                 >
-                    Dodaj
+                    {saving ? "Zapisywanie..." : "Dodaj"}.
                 </button>
             </form>
         )}
