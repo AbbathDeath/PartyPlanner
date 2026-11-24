@@ -23,7 +23,12 @@ const formatPLN = (grosze) =>
 const ExpensesPage = () => {
 
     const { id } = useParams() 
-    const [showForm, setShowForm] = useState(false) 
+    const [showForm, setShowForm] = useState(false)
+    const [expenseTitle, setExpenseTitle] = useState("")
+    const [expenseAmount, setExpenseAmount] = useState("")
+    const [expensePaidBy, setExpensePaidBy] = useState("")
+    
+    
 
   return (
     <div className="max-w-md mx-auto pt-24">
@@ -53,7 +58,45 @@ const ExpensesPage = () => {
 
         {showForm && (
             <div className="border rounded-lg p-4 mt-4">
-                Tu będzie formularz
+                <h3 classnName="font-bold">Dodaj wydatek</h3>
+                <label className="block text-sm text-gray-600 mt-3">Tytuł</label>
+                <input
+                        value={expenseTitle}
+                        onChange={(e) => setExpenseTitle(e.target.value)}
+                        className='p-3 mt-1 border rounded w-full'
+                        type='text'
+                        placeholder="np. Piwo">
+                </input>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <div>
+                        <label className="block text-sm text-gray-600 mt-3">Kwota (zł)</label>
+                        <input
+                            value={expenseAmount}
+                            onChange={(e) => setExpenseAmount(e.target.value)}
+                            className='p-3 mt-1 border rounded w-full'
+                            type="number"
+                            step="0.01"
+                            min="0">
+                        </input>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm text-gray-600 mt-3">Kto płacił</label>
+                        <select 
+                            className="p-3 mt-1 w-full border rounded"
+                            value={expensePaidBy}
+                            onChange={(e) => setExpensePaidBy(e.target.value)}
+                        >
+                            <option value="">Wybierz płacącego</option>
+                            {test_names.map((item) => (
+                                <option key={item.id} value={item.id}>
+                                    {item.name}
+                                </option>
+                        ))}
+                    </select>
+                    </div>
+                </div>
             </div>
         )}
 
