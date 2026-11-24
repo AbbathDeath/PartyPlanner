@@ -30,6 +30,7 @@ const ExpensesPage = () => {
     const [selectedMembers, setSelectedMembers] = useState(test_names.map((member) => member.id))
     const [splitMode, setSplitMode] = useState("equal")
     const [manualSplit, setManualSplit] = useState({})
+    const [error, setError] = useState("")
     const [orders, setOrders] = useState(test_orders)
     
     const toggleMember = (memberId) => {
@@ -82,6 +83,33 @@ const ExpensesPage = () => {
 
     const handleAddOrder = (e) => {
         e.preventDefault()
+        setError("")
+
+        if (!expenseTitle.trim()) {
+            setError("Podaj tytuł wydatku")
+            return
+        }
+
+        if (totalGrosze <= 0) {
+            setError("Kwota musi być większa od zera")
+            return
+        }
+
+        if(!expensePaidBy) {
+            setError("Wybierz, kto płacił")
+            return
+        }
+
+        if(selectedMembers.length === 0) {
+            setError("Zaznacz co najmniej jednego uczestnika")
+            return
+        }
+
+        if (sharesSum !== totalGrosze) {
+            setError("Podzielona kwota musi być równa kwocie wydatku")
+            return
+        }
+
 
         const newOrder = {
             id: crypto.randomUUID(),
@@ -114,7 +142,7 @@ const ExpensesPage = () => {
         <h1 className="text-2xl font-bold mt-4">Wydatki</h1>
 
         <ul className="flex flex-col gap-1 mt-4">
-            {test_orders.map((order) => (
+            {orders.map((order) => (
                 <li key={order.id} className="flex justify-between border-b py-1">
                     <div>
                         <div>{order.title}</div>
@@ -209,6 +237,7 @@ const ExpensesPage = () => {
                         Podzielono: {formatPLN(sharesSum)} z {formatPLN(totalGrosze)}
                     </p>
                 </div>
+                {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
                 <button
                     type="submit"
                     className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 cursor-pointer"
