@@ -1,13 +1,7 @@
 import {Link, useParams } from 'react-router'
 import { useState, useEffect } from 'react'
 import { fetchGroup, fetchProfiles } from '../Context/groupsApi'
-
-
-const test_orders = [
-    { id: 1, title: "Pizza", amount: 6000, paid_by: "n1"},
-    { id: 2, title: "Piwko", amount: 4000,  paid_by: "n2"},
-    { id: 3, title: "Inne zakupy", amount: 12000, paid_by: "n3"}
-]
+import { fetchExpenses } from '../Context/expensesApi'
 
 const formatPLN = (grosze) =>
     (grosze / 100).toLocaleString('pl-PL', {style: 'currency', currency: 'PLN'})
@@ -25,7 +19,7 @@ const ExpensesPage = () => {
     const [splitMode, setSplitMode] = useState("equal")
     const [manualSplit, setManualSplit] = useState({})
     const [error, setError] = useState("")
-    const [orders, setOrders] = useState(test_orders)
+    const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
     const [loadError, setLoadError] = useState("")
     const [members, setMembers] = useState([])
@@ -46,12 +40,19 @@ const ExpensesPage = () => {
                     setLoadError("Grupa nie istnieje albo nie jesteś jej członkiem")
                     return
                 }
-                const profiles= await fetchProfiles(group.members)
+                const profiles = await fetchProfiles(group.members)
                 setMembers(profiles)
                 setSelectedMembers(profiles.map((profile) => profile.id))
+                
+                const expenses = await fetchExpenses(id)
+                const expensesInGrosze = expenses.map((expense) => ({
+                    ...expense,
+                    amount: Math.round(Number(expense.amount) * 100)
+                }))
+                setOrders(expensesInGrosze)
             } catch (err) {
                 console.error(err)
-                setLoadError("Nie udało się pobrać uczestników grupy")
+                setLoadError("Nie udało się pobrać danych grupy")
             } finally {
                 setLoading(false)
             }
@@ -146,7 +147,6 @@ const ExpensesPage = () => {
                 share: shareOf(memberId),
             }))
         }
-        console.log(newOrder)
         setOrders([newOrder, ...orders])
         setExpenseTitle("")
         setExpenseAmount("")
@@ -182,7 +182,9 @@ const ExpensesPage = () => {
                     ← Wróć do grupy
                 </Link>
         <h1 className="text-2xl font-bold mt-4">Wydatki</h1>
-
+        {orders.length === 0 && (
+            <p className="text-gray-600 mt-4">Brak wydatków. Dodaj pierwszy poniżej.</p>
+        )}
         <ul className="flex flex-col gap-1 mt-4">
             {orders.map((order) => (
                 <li key={order.id} className="flex justify-between border-b py-1">
