@@ -3,8 +3,18 @@ import { useState, useEffect } from 'react'
 import { fetchGroup, fetchProfiles } from '../Context/groupsApi'
 import { createExpense, fetchExpenses } from '../Context/expensesApi'
 
+
 const formatPLN = (grosze) =>
     (grosze / 100).toLocaleString('pl-PL', {style: 'currency', currency: 'PLN'})
+
+const EXPENSE_ERRORS = {
+    invalid_weight: "Każdy zaznaczony uczestnik musi mieć kwotę większą od zera.",
+    participants_required: "Zaznacz co najmniej jednego uczestnika.",
+    invalid_expense_data: "Sprawdź tytuł i kwotę wydatku.",
+    not_a_group_member: "Nie jesteś członkiem tej grupy.",
+    payer_not_in_group: "Osoba płacąca nie należy do grupy.",
+    participant_not_in_group: "Jeden z uczestników nie należy do grupy."
+}
 
 const expensesToGrosze = (expense) => ({
                     ...expense,
@@ -26,6 +36,7 @@ const ExpensesPage = () => {
     const [loading, setLoading] = useState(true)
     const [loadError, setLoadError] = useState("")
     const [members, setMembers] = useState([])
+    const [saving, setSaving] = useState(false)
     
     const toggleMember = (memberId) => {
         if (selectedMembers.includes(memberId)) {
@@ -130,6 +141,11 @@ const ExpensesPage = () => {
             return
         }
 
+        if (splitMode === "manual" && selectedMembers.some((memberId) => shareOf(memberId) <= 0)) {
+            setError("Każdy zaznaczony uczestnik musi mieć kwotę większą od zera. Odznacz osoby, które nic nie płacą." )
+            return
+        }
+
         if (sharesSum !== totalGrosze) {
             setError("Podzielona kwota musi być równa kwocie wydatku")
             return
@@ -137,6 +153,7 @@ const ExpensesPage = () => {
 
         const weights = splitMode === "manual" ? selectedMembers.map((memberId) => shareOf(memberId) / 100) : null 
 
+        setSaving(true)
         try{
            await createExpense ({groupId: id, title: expenseTitle, amount: totalGrosze / 100, paidBy: expensePaidBy, participants: selectedMembers, weights: weights})
            const expenses = await fetchExpenses(id)
@@ -152,7 +169,9 @@ const ExpensesPage = () => {
 
         } catch(err) {
             console.error(err)
-            setError("Nie udało się zapisać wydatku. Spróbuj ponownie.")
+            setError(EXPENSE_ERRORS[err.message] ||  "Nie udało się zapisać wydatku. Spróbuj ponownie.")
+        } finally {
+            setSaving(false)
         }
     }
 
