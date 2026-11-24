@@ -1,13 +1,7 @@
 import {Link, useParams } from 'react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { fetchGroup, fetchProfiles } from '../Context/groupsApi'
 
-
-const test_names = [
-    {id: "n1", name: "test1" },
-    {id: "n2", name: "test2" },
-    {id: "n3", name: "test3" },
-
-]
 
 const test_orders = [
     { id: 1, title: "Pizza", amount: 6000, paid_by: "n1"},
@@ -27,11 +21,14 @@ const ExpensesPage = () => {
     const [expenseTitle, setExpenseTitle] = useState("")
     const [expenseAmount, setExpenseAmount] = useState("")
     const [expensePaidBy, setExpensePaidBy] = useState("")
-    const [selectedMembers, setSelectedMembers] = useState(test_names.map((member) => member.id))
+    const [selectedMembers, setSelectedMembers] = useState([])
     const [splitMode, setSplitMode] = useState("equal")
     const [manualSplit, setManualSplit] = useState({})
     const [error, setError] = useState("")
     const [orders, setOrders] = useState(test_orders)
+    const [loading, setLoading] = useState(true)
+    const [loadError, setLoadError] = useState("")
+    const [members, setMembers] = useState([])
     
     const toggleMember = (memberId) => {
         if (selectedMembers.includes(memberId)) {
@@ -41,6 +38,26 @@ const ExpensesPage = () => {
         }
     }
 
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const group = await fetchGroup(id)
+                if (!group) {
+                    setLoadError("Grupa nie istnieje albo nie jesteś jej członkiem")
+                    return
+                }
+                const profiles= await fetchProfiles(group.members)
+                setMembers(profiles)
+                setSelectedMembers(profiles.map((profile) => profile.id))
+            } catch (err) {
+                console.error(err)
+                setLoadError("Nie udało się pobrać uczestników grupy")
+            } finally {
+                setLoading(false)
+            }
+        }
+        load()
+    }, [id])
     const totalGrosze = Math.round(Number(expenseAmount) * 100)
     const base = selectedMembers.length > 0 ? Math.floor(totalGrosze / selectedMembers.length) : 0
     const remainder = selectedMembers.length > 0? totalGrosze % selectedMembers.length : 0
@@ -53,6 +70,14 @@ const ExpensesPage = () => {
         const index = selectedMembers.indexOf(memberId)
         if (index === -1) return 0
         return index < remainder ? base + 1: base
+    }
+
+    const memberName = (memberId) => {
+        const member = members.find((profile) => profile.id === memberId)
+        if (!member) {
+            return "—"
+        }
+        return member.display_name || member.email
     }
 
     const sharesSum = selectedMembers.reduce((sum, memberId) => sum + shareOf(memberId), 0)
@@ -128,11 +153,28 @@ const ExpensesPage = () => {
         setExpensePaidBy("")
         setSplitMode("equal")
         setManualSplit({})
-        setSelectedMembers(test_names.map((member) => member.id))
+        setSelectedMembers(members.map((member) => member.id))
         setShowForm(false)
     }
 
+    if (loading) {
+        return <p>Ładowanie..</p>
+    }
 
+    if (loadError) {
+        return (
+            <div className="max-w-md mx-auto pt-24">
+                <div className="border rounded-lg shadow-md p-6">
+                <p className="text-red-600">{loadError}</p>
+                <Link 
+                    to="/dashboard" 
+                    className="text-green-600 underline hover:text-green-800 block mt-4">
+                 ← Wróć do panelu
+                </Link>
+                </div>
+            </div>
+        )
+    }
   return (
     <div className="max-w-md mx-auto pt-24">
       <div className="border rounded-lg shadow-md p-6">
@@ -147,7 +189,7 @@ const ExpensesPage = () => {
                     <div>
                         <div>{order.title}</div>
                         <div className="text-sm text-gray-600">
-                            zapłacił(a): {test_names.find((item) => item.id === order.paid_by)?.name}
+                            zapłacił(a): {memberName(order.paid_by)}
                         </div>
                     </div>
                     <span>{formatPLN(order.amount)}</span>
@@ -192,9 +234,9 @@ const ExpensesPage = () => {
                             onChange={(e) => setExpensePaidBy(e.target.value)}
                         >
                             <option value="">Wybierz płacącego</option>
-                            {test_names.map((item) => (
+                            {members.map((item) => (
                                 <option key={item.id} value={item.id}>
-                                    {item.name}
+                                    {memberName(item.id)}
                                 </option>
                         ))}
                     </select>
@@ -220,7 +262,7 @@ const ExpensesPage = () => {
 
                 <label className="block text-sm text-gray-600 mt-3">Uczestnicy</label>
                 <div>
-                    {test_names.map((item) => (
+                    {members.map((item) => (
                         <div key={item.id} className="flex justify-between items-center py-1">
                             <label className="flex items-center gap-2">
                             <input 
@@ -228,7 +270,7 @@ const ExpensesPage = () => {
                                 checked = {selectedMembers.includes(item.id)}
                                 onChange = {() => toggleMember(item.id)}
                                 />
-                                {item.name}
+                                {memberName(item.id)}
                             </label>
                             {showShare(item)}
                         </div>
