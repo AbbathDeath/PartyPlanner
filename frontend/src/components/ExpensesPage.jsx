@@ -1,12 +1,15 @@
 import {Link, useParams } from 'react-router'
 import { useState, useEffect } from 'react'
 import { fetchGroup, fetchProfiles } from '../Context/groupsApi'
-import { fetchExpenses } from '../Context/expensesApi'
+import { createExpense, fetchExpenses } from '../Context/expensesApi'
 
 const formatPLN = (grosze) =>
     (grosze / 100).toLocaleString('pl-PL', {style: 'currency', currency: 'PLN'})
 
-
+const expensesToGrosze = (expense) => ({
+                    ...expense,
+                    amount: Math.round(Number(expense.amount) * 100)
+                })
 
 const ExpensesPage = () => {
 
@@ -45,11 +48,7 @@ const ExpensesPage = () => {
                 setSelectedMembers(profiles.map((profile) => profile.id))
                 
                 const expenses = await fetchExpenses(id)
-                const expensesInGrosze = expenses.map((expense) => ({
-                    ...expense,
-                    amount: Math.round(Number(expense.amount) * 100)
-                }))
-                setOrders(expensesInGrosze)
+                setOrders(expenses.map(expensesToGrosze))
             } catch (err) {
                 console.error(err)
                 setLoadError("Nie udało się pobrać danych grupy")
@@ -107,7 +106,7 @@ const ExpensesPage = () => {
         )
     }
 
-    const handleAddOrder = (e) => {
+    const handleAddOrder = async (e) => {
         e.preventDefault()
         setError("")
 
@@ -136,25 +135,25 @@ const ExpensesPage = () => {
             return
         }
 
+        const weights = splitMode === "manual" ? selectedMembers.map((memberId) => shareOf(memberId) / 100) : null 
 
-        const newOrder = {
-            id: crypto.randomUUID(),
-            title: expenseTitle,
-            amount: Math.round(Number(expenseAmount) * 100),
-            paid_by: expensePaidBy,
-            shares: selectedMembers.map((memberId) => ({
-                user_id: memberId,
-                share: shareOf(memberId),
-            }))
+        try{
+           await createExpense ({groupId: id, title: expenseTitle, amount: totalGrosze / 100, paidBy: expensePaidBy, participants: selectedMembers, weights: weights})
+           const expenses = await fetchExpenses(id)
+           setOrders(expenses.map(expensesToGrosze))
+
+           setExpenseTitle("")
+           setExpenseAmount("")
+           setExpensePaidBy("")
+           setSplitMode("equal")
+           setManualSplit({})
+           setSelectedMembers(members.map((member) => member.id))
+           setShowForm(false)
+
+        } catch(err) {
+            console.error(err)
+            setError("Nie udało się zapisać wydatku. Spróbuj ponownie.")
         }
-        setOrders([newOrder, ...orders])
-        setExpenseTitle("")
-        setExpenseAmount("")
-        setExpensePaidBy("")
-        setSplitMode("equal")
-        setManualSplit({})
-        setSelectedMembers(members.map((member) => member.id))
-        setShowForm(false)
     }
 
     if (loading) {
