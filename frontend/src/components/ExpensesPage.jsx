@@ -37,6 +37,18 @@ const ExpensesPage = () => {
         }
     }
 
+    const totalGrosze = Math.round(Number(expenseAmount) * 100)
+    const base = selectedMembers.length > 0 ? Math.floor(totalGrosze / selectedMembers.length) : 0
+    const remainder = selectedMembers.length > 0? totalGrosze % selectedMembers.length : 0
+
+    const shareOf = (memberId) => {
+        const index = selectedMembers.indexOf(memberId)
+        if (index === -1) return 0
+        return index < remainder ? base + 1: base
+    }
+
+    const sharesSum = selectedMembers.reduce((sum, memberId) => sum + shareOf(memberId), 0)
+
   return (
     <div className="max-w-md mx-auto pt-24">
       <div className="border rounded-lg shadow-md p-6">
@@ -107,16 +119,21 @@ const ExpensesPage = () => {
                 <label className="block text-sm text-gray-600 mt-3">Uczestnicy</label>
                 <div>
                     {test_names.map((item) => (
-                        <label key={item.id} className="flex items-center gap-2 py-1">
+                        <div key={item.id} className="flex justify-between items-center py-1">
+                            <label className="flex items-center gap-2">
                             <input 
                                 type = "checkbox"
                                 checked = {selectedMembers.includes(item.id)}
                                 onChange = {() => toggleMember(item.id)}
-                            />
-                            {item.name}
-                        </label>
+                                />
+                                {item.name}
+                            </label>
+                            <span className="text-gray-600">{selectedMembers.includes(item.id) ? formatPLN(shareOf(item.id)) : "—"} </span>
+                        </div>
                     ))}
-                    <p>{selectedMembers.join(", ")}</p>
+                    <p className="text-sm text-gray-600 mt-2">
+                        Podzielono: {formatPLN(sharesSum)} z {formatPLN(totalGrosze)}
+                    </p>
                 </div>
             </div>
         )}
