@@ -27,8 +27,15 @@ const ExpensesPage = () => {
     const [expenseTitle, setExpenseTitle] = useState("")
     const [expenseAmount, setExpenseAmount] = useState("")
     const [expensePaidBy, setExpensePaidBy] = useState("")
+    const [selectedMembers, setSelectedMembers] = useState(test_names.map((member) => member.id))
     
-    
+    const toggleMember = (memberId) => {
+        if (selectedMembers.includes(memberId)) {
+            setSelectedMembers(selectedMembers.filter((o) => o !== memberId))
+        } else {
+            setSelectedMembers([...selectedMembers, memberId])
+        }
+    }
 
   return (
     <div className="max-w-md mx-auto pt-24">
@@ -58,7 +65,7 @@ const ExpensesPage = () => {
 
         {showForm && (
             <div className="border rounded-lg p-4 mt-4">
-                <h3 classnName="font-bold">Dodaj wydatek</h3>
+                <h3 className="font-bold">Dodaj wydatek</h3>
                 <label className="block text-sm text-gray-600 mt-3">Tytuł</label>
                 <input
                         value={expenseTitle}
@@ -96,6 +103,20 @@ const ExpensesPage = () => {
                         ))}
                     </select>
                     </div>
+                </div>
+                <label className="block text-sm text-gray-600 mt-3">Uczestnicy</label>
+                <div>
+                    {test_names.map((item) => (
+                        <label key={item.id} className="flex items-center gap-2 py-1">
+                            <input 
+                                type = "checkbox"
+                                checked = {selectedMembers.includes(item.id)}
+                                onChange = {() => toggleMember(item.id)}
+                            />
+                            {item.name}
+                        </label>
+                    ))}
+                    <p>{selectedMembers.join(", ")}</p>
                 </div>
             </div>
         )}
