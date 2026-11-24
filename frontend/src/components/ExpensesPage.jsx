@@ -30,6 +30,7 @@ const ExpensesPage = () => {
     const [selectedMembers, setSelectedMembers] = useState(test_names.map((member) => member.id))
     const [splitMode, setSplitMode] = useState("equal")
     const [manualSplit, setManualSplit] = useState({})
+    const [orders, setOrders] = useState(test_orders)
     
     const toggleMember = (memberId) => {
         if (selectedMembers.includes(memberId)) {
@@ -79,6 +80,30 @@ const ExpensesPage = () => {
         )
     }
 
+    const handleAddOrder = (e) => {
+        e.preventDefault()
+
+        const newOrder = {
+            id: crypto.randomUUID(),
+            title: expenseTitle,
+            amount: Math.round(Number(expenseAmount) * 100),
+            paid_by: expensePaidBy,
+            shares: selectedMembers.map((memberId) => ({
+                user_id: memberId,
+                share: shareOf(memberId),
+            }))
+        }
+        console.log(newOrder)
+        setOrders([newOrder, ...orders])
+        setExpenseTitle("")
+        setExpenseAmount("")
+        setExpensePaidBy("")
+        setSplitMode("equal")
+        setManualSplit({})
+        setSelectedMembers(test_names.map((member) => member.id))
+        setShowForm(false)
+    }
+
 
   return (
     <div className="max-w-md mx-auto pt-24">
@@ -107,7 +132,7 @@ const ExpensesPage = () => {
         </button>
 
         {showForm && (
-            <div className="border rounded-lg p-4 mt-4">
+            <form onSubmit={handleAddOrder} className="border rounded-lg p-4 mt-4">
                 <h3 className="font-bold">Dodaj wydatek</h3>
                 <label className="block text-sm text-gray-600 mt-3">Tytuł</label>
                 <input
@@ -184,7 +209,13 @@ const ExpensesPage = () => {
                         Podzielono: {formatPLN(sharesSum)} z {formatPLN(totalGrosze)}
                     </p>
                 </div>
-            </div>
+                <button
+                    type="submit"
+                    className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 cursor-pointer"
+                >
+                    Dodaj
+                </button>
+            </form>
         )}
 
       </div>
