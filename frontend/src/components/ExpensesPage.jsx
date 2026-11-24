@@ -1,4 +1,6 @@
 import {Link, useParams } from 'react-router'
+import { useState } from 'react'
+
 
 const test_names = [
     {id: "n1", name: "test1" },
@@ -16,9 +18,12 @@ const test_orders = [
 const formatPLN = (grosze) =>
     (grosze / 100).toLocaleString('pl-PL', {style: 'currency', currency: 'PLN'})
 
+
+
 const ExpensesPage = () => {
 
     const { id } = useParams() 
+    const [showForm, setShowForm] = useState(false) 
 
   return (
     <div className="max-w-md mx-auto pt-24">
@@ -41,6 +46,17 @@ const ExpensesPage = () => {
                 </li>
             ))}
         </ul>
+
+        <button onClick = {() => setShowForm(!showForm)} className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 cursor-pointer" >
+            {showForm ? "Anuluj" : "Dodaj wydatek"}
+        </button>
+
+        {showForm && (
+            <div className="border rounded-lg p-4 mt-4">
+                Tu będzie formularz
+            </div>
+        )}
+
       </div>
     </div>
   )
